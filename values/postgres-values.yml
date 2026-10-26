@@ -1,0 +1,45 @@
+# helm upgrade --install postgres oci://registry-1.docker.io/bitnamicharts/postgresql -f postgres-values.yml --namespace muse --create-namespace
+
+replicaCount: 1
+
+auth:
+  existingSecret: muse-postgres-secret
+  username: spring
+  database: muse
+  password: boot
+
+passwordUpdateJob:
+  enabled: false
+  previousPasswords:
+    existingSecret: postgres-postgresql
+
+primary:
+  extendedConfiguration: |
+    shared_buffers = 1GB
+    work_mem = 16MB
+    effective_cache_size = 2GB
+
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 2048Mi
+      cpu: 500m
+
+  persistence:
+    enabled: true
+    size: 15Gi
+    storageClass: ""
+
+
+
+replica:
+  enabled: false
+
+metrics:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 5432

@@ -1,0 +1,10 @@
+# helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+# helm repo update
+# helm upgrade --install vmagent ingress-nginx/ingress-nginx --namespace ingress-nginx --create-namespace -f ingress-nginx-values.yml
+
+controller:
+  service:
+    type: LoadBalancer
+    annotations:
+      lb.k3s.cattle.io/loadbalancer-ip: "10.10.146.238"
+    externalTrafficPolicy: Cluster

@@ -1,0 +1,30 @@
+# helm install elastic oci://registry-1.docker.io/bitnamicharts/elasticsearch -f elastic-values.yml --namespace elastic --create-namespace
+
+master:
+  masterOnly: false
+  replicaCount: 1
+data:
+  replicaCount: 0
+coordinating:
+  replicaCount: 0
+ingest:
+  replicaCount: 0
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1024Mi
+    cpu: 500m
+
+heapSize: 512m
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 10Gi
+
+service:
+  type: ClusterIP
+  port: 9200

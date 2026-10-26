@@ -1,0 +1,60 @@
+# helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+# helm repo update
+# helm upgrade --install grafana grafana/grafana --namespace monitoring --create-namespace -f grafana-values.yml
+
+
+adminUser: admin
+adminPassword: admin
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: VictoriaMetrics
+        type: prometheus
+        access: proxy
+        url: http://victoria-metrics-victoria-metrics-single-server.monitoring.svc.cluster.local:8428
+        isDefault: true
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki.monitoring.svc.cluster.local:3100
+
+grafana.ini:
+  server:
+    domain: muse.innoca.local
+    root_url: "%(protocol)s://%(domain)s/grafana"
+    serve_from_sub_path: true
+
+ingress:
+  enabled: true
+  hosts:
+    - muse.innoca.local
+  path: "/grafana"
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - muse.innoca.local
+      secretName: muse-frontend-tls
+
+persistence:
+  enabled: true
+  type: pvc
+  size: 2Gi
+
+initChownData:
+  enabled: false 
+
+service:
+  type: ClusterIP
+  port: 3000
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 512Mi

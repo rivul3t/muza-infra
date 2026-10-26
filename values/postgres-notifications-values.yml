@@ -1,0 +1,32 @@
+# helm upgrade --install notifications oci://registry-1.docker.io/bitnamicharts/postgresql -f postgres-notifications-values.yml --namespace notifications --create-namespace
+
+
+replicaCount: 1
+
+auth:
+  existingSecret: notifications-postgres-password
+  username: notifications
+  database: notifications
+
+passwordUpdateJob:
+  enabled: false
+  previousPasswords:
+    existingSecret: postgres-postgresql
+
+primary:
+  persistence:
+    enabled: true
+    size: 7Gi
+    storageClass: ""
+
+
+
+replica:
+  enabled: false
+
+metrics:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 5432

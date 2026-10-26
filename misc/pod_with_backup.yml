@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backup-copy
+spec:
+  containers:
+  - name: postgres
+    image: postgres:17
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - name: backup-storage
+      mountPath: /backups
+  volumes:
+  - name: backup-storage
+    persistentVolumeClaim:
+      claimName: postgres-backup-pvc
+  restartPolicy: Never

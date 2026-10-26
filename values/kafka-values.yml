@@ -1,0 +1,22 @@
+# helm upgrade --install --namespace kafka --create-namespace -f ../values/kafka-values.yml kafka oci://registry-1.docker.io/bitnamicharts/kafka
+
+kraft:
+  enabled: true
+
+zookeeper:
+  enabled: false
+
+controller:
+  replicaCount: 3
+
+listeners:
+  client:
+    protocol: PLAINTEXT
+  controller:
+    protocol: PLAINTEXT
+  interbroker:
+    protocol: PLAINTEXT
+
+persistence:
+  enabled: true
+  size: 8Gi

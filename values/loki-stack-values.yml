@@ -1,0 +1,13 @@
+grafana:
+  enabled: false
+
+prometheus:
+  enabled: false
+
+loki:
+  persistence:
+    enabled: true
+    size: 5Gi
+
+promtail:
+  enabled: true

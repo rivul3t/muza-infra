@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-backup-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: local-path
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+spec:
+  schedule: "0 5 * * *"
+  timeZone: "Europe/Moscow"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: postgres:17
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: muse-postgres-secret
+                      key: password
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  mkdir -p /backups
+                  pg_dump -U spring -h postgres-postgresql.muse.svc.cluster.local -F c -b -v -f /backups/mydb_$(date +\%F).backup muse
+                  echo "Backup done"
+              volumeMounts:
+                - name: backup-storage
+                  mountPath: /backups
+          restartPolicy: OnFailure
+          volumes:
+            - name: backup-storage
+              persistentVolumeClaim:
+                claimName: postgres-backup-pvc

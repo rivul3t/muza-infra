@@ -1,0 +1,21 @@
+# helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# helm repo update
+# helm upgrade --install node-exporter prometheus-community/prometheus-node-exporter   -f node-exporter-values.yml   --namespace monitoring --create-namespace 
+
+service:
+  type: ClusterIP
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+hostNetwork: true
+hostPID: true
+hostIPC: true
+
+tolerations: []
+nodeSelector: {}

@@ -1,0 +1,46 @@
+variables:
+  IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  DEPLOY_IMAGE_TAG:
+    value: $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    options:
+      - $CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    description: "tag of image from this repo to deploy"
+  HELM_IMAGE: alpine/helm:3.14.0
+  HELM_RELEASE_NAME: notifications
+  HELM_CHART_NAME: notifications
+  KUBE_NAMESPACE: notifications
+
+stages:
+  - test
+  - build
+  - deploy
+
+build_docker:
+  stage: build
+  image: docker
+  before_script:
+    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+  services:
+    - docker:dind
+  script:
+    - docker build . -t $IMAGE_NAME
+    - docker push $IMAGE_NAME
+
+deploy:
+  stage: deploy
+  image:
+    name: $HELM_IMAGE
+    entrypoint: [""]
+  before_script:
+    - mkdir -p ~/.kube
+    - echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+    - chmod 600 ~/.kube/config
+    - export KUBECONFIG=~/.kube/config
+  script:
+    - |
+      helm upgrade --install "$HELM_RELEASE_NAME" charts/$HELM_CHART_NAME \
+        --namespace "$KUBE_NAMESPACE" \
+        --create-namespace \
+        --values charts/$HELM_CHART_NAME/values.yml \
+        --set image.repository=$CI_REGISTRY_IMAGE \
+        --set image.tag=$DEPLOY_IMAGE_TAG
